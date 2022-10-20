@@ -27,10 +27,17 @@ jobs:
       - name: curl cmake-3.24.0-windows-x86_64.zip
         shell: cmd
         run: cd /d ${{ github.workspace }} && curl https://github.com/Kitware/CMake/releases/download/v3.24.0/cmake-3.24.0-windows-x86_64.zip -L --output cmake-3.24.0-windows-x86_64.zip && dir && 7z.exe x cmake-3.24.0-windows-x86_64.zip
+      
+      - name: curl boost-v1.80.0-x86_64-posix-seh-rev0-8.1.0.zip
+        shell: cmd
+        run: cd /d ${{ github.workspace }} && curl https://github.com/dirkarnez/boost-prebuilt/releases/download/v1.80.0/boost-v1.80.0-x86_64-posix-seh-rev0-8.1.0.zip -L --output boost-v1.80.0-x86_64-posix-seh-rev0-8.1.0.zip && dir && 7z.exe x boost-v1.80.0-x86_64-posix-seh-rev0-8.1.0.zip -o"${{ github.workspace }}\boost-v1.80.0-x86_64-posix-seh-rev0-8.1.0"
         
       - name: set PATH, check mingw version, cmake generate, build and install
         shell: cmd
         run: |
+            set WORKSPACE=%~dp0
+            set WORKSPACE_LINUX=%WORKSPACE:\=/%
+            echo %WORKSPACE_LINUX%
             set PATH=^
             ${{ github.workspace }}\mingw64;^
             ${{ github.workspace }}\mingw64\bin;^
@@ -40,7 +47,9 @@ jobs:
             cmake.exe -G "MinGW Makefiles" ^
             -DCMAKE_BUILD_TYPE=Release ^
             -DCMAKE_CXX_STANDARD=14 ^
+            -DBOOST_ROOT="%WORKSPACE_LINUX%/boost-v1.80.0-x86_64-posix-seh-rev0-8.1.0" ^
             -DBUILD_SHARED_LIBS=OFF ^
+            -Dstatic_runtime=ON ^
             -DCMAKE_INSTALL_PREFIX="cmake-build/${{ env.cmakeInstallationPath }}" -B./cmake-build &&^
             cd cmake-build && cmake --build . && cmake --install .
             
